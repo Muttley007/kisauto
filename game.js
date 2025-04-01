@@ -1,23 +1,21 @@
-// Alap Three.js és WebXR inicializálás
 let scene, camera, renderer, car, plane, obstacles = [];
 let clock = new THREE.Clock();
-let timeLeft = 60; // 60 másodperc időkorlát
+let timeLeft = 60;
 let level = 1;
 
 function init() {
-    // Jelenet létrehozása
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    // WebXR aktiválása
     document.getElementById('arButton').addEventListener('click', startAR);
 
-    // Fényforrás
     const light = new THREE.AmbientLight(0xffffff, 1);
     scene.add(light);
+
+    console.log("Inicializálás kész");
 }
 
 async function startAR() {
@@ -30,11 +28,11 @@ async function startAR() {
         requiredFeatures: ['hit-test', 'dom-overlay'],
         domOverlay: { root: document.body }
     });
+    console.log("WebXR session aktív:", session);
 
     renderer.xr.enabled = true;
     renderer.xr.setSession(session);
 
-    // Sík felület létrehozása
     createPlane();
     createCar();
     generateTrack();
@@ -42,30 +40,29 @@ async function startAR() {
     animate();
 }
 
-// Pálya alapja (sík felület)
 function createPlane() {
     const geometry = new THREE.PlaneGeometry(5, 5);
     const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     plane = new THREE.Mesh(geometry, material);
-    plane.rotation.x = -Math.PI / 2; // Fekvő pozíció
+    plane.rotation.x = -Math.PI / 2;
     scene.add(plane);
+    console.log("Pálya létrehozva");
 }
 
-// Autó létrehozása
 function createCar() {
     const geometry = new THREE.BoxGeometry(0.2, 0.1, 0.4);
     const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
     car = new THREE.Mesh(geometry, material);
     car.position.set(0, 0.05, 0);
     scene.add(car);
+    console.log("Autó létrehozva");
 }
 
-// Véletlenszerű pályagenerálás
 function generateTrack() {
     obstacles.forEach(obj => scene.remove(obj));
     obstacles = [];
 
-    for (let i = 0; i < level * 2; i++) { // Nehézség növelése
+    for (let i = 0; i < level * 2; i++) {
         const geometry = new THREE.BoxGeometry(0.3, 0.3, 0.3);
         const material = new THREE.MeshBasicMaterial({ color: 0x0000ff });
         const obstacle = new THREE.Mesh(geometry, material);
@@ -77,9 +74,9 @@ function generateTrack() {
         scene.add(obstacle);
         obstacles.push(obstacle);
     }
+    console.log("Pálya generálva, akadályok száma:", obstacles.length);
 }
 
-// Animáció és logika
 function animate() {
     renderer.setAnimationLoop(() => {
         const delta = clock.getDelta();
@@ -91,10 +88,10 @@ function animate() {
             generateTrack();
         }
 
-        // Autó mozgatása (pl. egyszerű billentyűzet inputtal, később érintésvezérlés)
         if (car.position.x < 2.5) car.position.x += 0.05;
 
         renderer.render(scene, camera);
+        console.log("Render fut, autó pozíció:", car.position.x);
     });
 }
 
